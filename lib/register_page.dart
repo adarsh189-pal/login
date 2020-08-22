@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:login/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:login/phone_auth.dart';
 
 class Register extends StatelessWidget {
   @override
@@ -21,8 +22,10 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _firestore = Firestore.instance;
-  final _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseUser _user;
+
+  GoogleSignIn _googleSignIn = new GoogleSignIn();
   String email;
   String password;
   @override
@@ -86,7 +89,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 'userpassword': password,
               });
               try {
-                final newUser = await _auth.createUserWithEmailAndPassword(
+                final newUser = await auth.createUserWithEmailAndPassword(
                     email: email, password: password);
                 if (newUser != null) {
                   Navigator.push(
@@ -115,48 +118,84 @@ class _RegisterPageState extends State<RegisterPage> {
         Container(
           height: 50,
           margin: EdgeInsets.only(left: 80, right: 80, top: 20),
+          child: isSignIn
+              ? Center(
+                  child: Column(
+                    children: [
+                      Text(_user.displayName),
+                      OutlineButton(
+                        onPressed: () {
+                          googleSignOut();
+                        },
+                        child: Text('Logout'),
+                      )
+                    ],
+                  ),
+                )
+              : Center(
+                  child: OutlineButton(
+                    onPressed: () {
+                      handleSignIn();
+                    },
+                    child: Text(
+                      'Login with google',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ),
+        ),
+        Container(
+          height: 50,
+          margin: EdgeInsets.only(left: 80, right: 80, top: 20),
           child: RaisedButton(
-            onPressed: () async {
-              _firestore.collection('userdetail').add({
-                'useremail': email,
-                'userpassword': password,
-              });
-
-              Future<FirebaseUser> _handleSignIn() async {
-                final GoogleSignInAccount googleUser =
-                    await _googleSignIn.signIn();
-                final GoogleSignInAuthentication googleAuth =
-                    await googleUser.authentication;
-
-                final AuthCredential credential =
-                    GoogleAuthProvider.getCredential(
-                  accessToken: googleAuth.accessToken,
-                  idToken: googleAuth.idToken,
-                );
-
-                final FirebaseUser user =
-                    (await _auth.signInWithCredential(credential)).user;
-                print("signed in " + user.displayName);
-                return user;
-              }
-
-              _handleSignIn()
-                  .then((FirebaseUser user) => print(user))
-                  .catchError((e) => print(e));
+            onPressed: () {
+              Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PhoneAuthPage()));
             },
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             color: Colors.red,
-            child: Text(
-              'Login with google',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
+            child: Center(
+              child: Text(
+                'Sign up with phone number',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
               ),
             ),
           ),
         )
       ],
     );
+  }
+
+  bool isSignIn = false;
+  Future<void> handleSignIn() async {
+    GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
+    GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+    AuthCredential credential = GoogleAuthProvider.getCredential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken);
+    AuthResult result = (await auth.signInWithCredential(credential));
+    _user = result.user;
+    setState(() {
+      isSignIn = true;
+    });
+  }
+
+  Future<void> googleSignOut() async {
+    await auth.signOut().then((value) {
+      _googleSignIn.signOut();
+      setState(() {
+        isSignIn = false;
+      });
+    });
   }
 }
