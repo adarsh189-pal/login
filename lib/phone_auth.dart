@@ -55,7 +55,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
           color: Colors.red,
           child: Center(
             child: Text(
-              'Sign up',
+              'Sign up using your mobile number',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
