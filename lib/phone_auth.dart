@@ -23,11 +23,102 @@ class PhoneAuthentication extends StatefulWidget {
 }
 
 class _PhoneAuthenticationState extends State<PhoneAuthentication> {
+  String phoneNo;
+  String smsCode;
+  String verificationId;
+
+  Future<void> verifyPhone() async {
+    final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
+      this.verificationId = verId;
+    };
+
+    final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
+      this.verificationId = verId;
+      smsCodeDialog(context).then((value) {
+        print('Signed in ');
+      });
+    };
+
+    final PhoneVerificationCompleted verifiedSuccess =
+        (AuthCredential credential) {
+      print('verified');
+    };
+
+    final PhoneVerificationFailed veriFailed = (AuthException exception) {
+      print('${exception.message}');
+    };
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: this.phoneNo,
+      codeAutoRetrievalTimeout: autoRetrieve,
+      codeSent: smsCodeSent,
+      timeout: const Duration(seconds: 5),
+      verificationCompleted: verifiedSuccess,
+      verificationFailed: veriFailed,
+    );
+  }
+
+  Future<bool> smsCodeDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            content: TextField(
+              onChanged: (value) {
+                this.smsCode = value;
+              },
+            ),
+            contentPadding: EdgeInsets.all(10),
+            actions: [
+              new FlatButton(
+                child: Text('Enter sms code'),
+                onPressed: () {
+                  FirebaseAuth.instance.currentUser().then((user) {
+                    if (user != null) {
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomePageScreen()));
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  });
+                },
+              )
+            ],
+            title: Text(
+              'Enter sms code',
+            ),
+          );
+        });
+  }
+
+  signIn() {
+    final AuthCredential credential = PhoneAuthProvider.getCredential(
+      verificationId: verificationId,
+      smsCode: smsCode,
+    );
+
+    FirebaseAuth.instance.signInWithCredential(credential).then((user) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomePageScreen()),
+      );
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       Container(
           child: TextFormField(
+            onChanged: (value) {
+              this.phoneNo = value;
+            },
             textAlign: TextAlign.center,
             decoration: InputDecoration(
                 contentPadding: EdgeInsets.only(left: 10),
@@ -49,7 +140,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
               color: Colors.red, borderRadius: BorderRadius.circular(10))),
       Container(
         child: RaisedButton(
-          onPressed: () {},
+          onPressed: verifyPhone,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           color: Colors.red,
