@@ -72,7 +72,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
             contentPadding: EdgeInsets.all(10),
             actions: [
               new FlatButton(
-                child: Text('Enter sms code'),
+                child: Text('Done'),
                 onPressed: () {
                   FirebaseAuth.instance.currentUser().then((user) {
                     if (user != null) {
@@ -83,6 +83,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
                               builder: (context) => HomePageScreen()));
                     } else {
                       Navigator.of(context).pop();
+                      signIn();
                     }
                   });
                 },

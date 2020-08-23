@@ -23,9 +23,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _firestore = Firestore.instance;
   FirebaseAuth auth = FirebaseAuth.instance;
-  FirebaseUser _user;
 
-  GoogleSignIn _googleSignIn = new GoogleSignIn();
   String email;
   String password;
   @override
@@ -118,23 +116,21 @@ class _RegisterPageState extends State<RegisterPage> {
         Container(
           height: 50,
           margin: EdgeInsets.only(left: 80, right: 80, top: 20),
-          child: isSignIn
-              ? Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => HomePageScreen()))
-              : Center(
-                  child: OutlineButton(
-                    onPressed: () {
-                      handleSignIn();
-                    },
-                    child: Text(
-                      'Login with google',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
+          child: Center(
+            child: RaisedButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              color: Colors.red,
+              onPressed: () {},
+              child: Text(
+                'Sign up with google',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
                 ),
+              ),
+            ),
+          ),
         ),
         Container(
           height: 50,
@@ -160,29 +156,5 @@ class _RegisterPageState extends State<RegisterPage> {
         )
       ],
     );
-  }
-
-  bool isSignIn = false;
-  Future<void> handleSignIn() async {
-    GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
-    GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
-    AuthCredential credential = GoogleAuthProvider.getCredential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
-    AuthResult result = (await auth.signInWithCredential(credential));
-    _user = result.user;
-    setState(() {
-      isSignIn = true;
-    });
-  }
-
-  Future<void> googleSignOut() async {
-    await auth.signOut().then((value) {
-      _googleSignIn.signOut();
-      setState(() {
-        isSignIn = false;
-      });
-    });
   }
 }
