@@ -119,19 +119,8 @@ class _RegisterPageState extends State<RegisterPage> {
           height: 50,
           margin: EdgeInsets.only(left: 80, right: 80, top: 20),
           child: isSignIn
-              ? Center(
-                  child: Column(
-                    children: [
-                      Text(_user.displayName),
-                      OutlineButton(
-                        onPressed: () {
-                          googleSignOut();
-                        },
-                        child: Text('Logout'),
-                      )
-                    ],
-                  ),
-                )
+              ? Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => HomePageScreen()))
               : Center(
                   child: OutlineButton(
                     onPressed: () {
@@ -152,10 +141,8 @@ class _RegisterPageState extends State<RegisterPage> {
           margin: EdgeInsets.only(left: 80, right: 80, top: 20),
           child: RaisedButton(
             onPressed: () {
-              Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PhoneAuthPage()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => PhoneAuthPage()));
             },
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
