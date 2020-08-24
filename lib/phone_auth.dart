@@ -120,6 +120,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
             onChanged: (value) {
               this.phoneNo = value;
             },
+            keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
                 contentPadding: EdgeInsets.only(left: 10),

@@ -1,30 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class HomePageScreen extends StatelessWidget {
+class HomePageScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        title: Text(
-          'Welcome App',
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-      backgroundColor: Colors.white,
-      body: HomeScreen(),
-    );
-  }
+  _HomePageScreenState createState() => _HomePageScreenState();
 }
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
+class _HomePageScreenState extends State<HomePageScreen> {
   String uid = '';
   getUid() {}
 
@@ -43,9 +25,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      'You are logged in successfully $uid',
-      style: TextStyle(fontSize: 30, color: Colors.blue),
-    );
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          title: Text(
+            'Welcome App',
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+        backgroundColor: Colors.white,
+        body: Container(
+          padding: EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'You are logged in successfully $uid',
+                style: TextStyle(color: Colors.lightBlue, fontSize: 32),
+              ),
+            ],
+          ),
+        ));
   }
 }
